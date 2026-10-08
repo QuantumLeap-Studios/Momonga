@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Default capabilities","local":true,"windows":["main","splash","preset-*"],"permissions":["core:default","dialog:default","core:window:allow-show","core:window:allow-close","core:window:allow-destroy","core:window:allow-set-focus"]}}

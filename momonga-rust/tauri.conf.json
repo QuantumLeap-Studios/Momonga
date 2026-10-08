@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Momonga",
+  "version": "0.1.0",
+  "identifier": "com.quantumleapstudios.momonga",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      { "label": "main", "title": "Momonga", "width": 1280, "height": 800, "visible": false },
+      {
+        "label": "splash",
+        "title": "Momonga",
+        "width": 500,
+        "height": 500,
+        "resizable": false,
+        "decorations": false,
+        "center": true,
+        "skipTaskbar": true,
+        "url": "/splash.html"
+      }
+    ],
+    "security": { "csp": null }
+  },
+  "bundle": { "active": false, "icon": ["icons/icon.ico"] }
+}
