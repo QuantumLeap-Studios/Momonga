@@ -225,7 +225,7 @@ export function ActivePrint({ printer, entry, samples }: { printer: PrinterPrese
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [confirmStop, setConfirmStop] = useState(false);
-  const [view, setView] = useState<"toolpath" | "camera">("toolpath");
+  const [view, setView] = useState<"toolpath" | "camera">("camera");
 
   const fraction =
     status?.filePos != null && status.fileSize ? status.filePos / status.fileSize : (status?.progress ?? 0) / 100;
@@ -272,25 +272,37 @@ export function ActivePrint({ printer, entry, samples }: { printer: PrinterPrese
         )}
       </div>
       {(err || (entry?.error && !status)) && <p className="preset-error">{err || entry?.error}</p>}
-
+         <div className="preview-tabs">
+                           </div>
+                           <CameraView printerId={printer.id} cameraUrl={printer.cameraUrl} />
+        
       <div className="print-grid">
-        <div className="model-preview">
-          <div className="preview-tabs">
-            <button className={view === "toolpath" ? "selected" : ""} onClick={() => setView("toolpath")}>Toolpath</button>
-            <button className={view === "camera" ? "selected" : ""} onClick={() => setView("camera")}>Camera</button>
-          </div>
-          {view === "camera" ? (
-            <CameraView printerId={printer.id} cameraUrl={printer.cameraUrl} />
-          ) : gcode && gcode.layers.length ? (
-            <>
-              <ToolpathViewer gcode={gcode} layer={layer} bedWidth={printer.bedWidth} bedDepth={printer.bedDepth} />
-              <div className="layer-badge">LAYER {layer + 1} / {gcode.layers.length}</div>
-            </>
-          ) : (
-            <div className="preview-empty">
-              {!active ? "Start a print to see its toolpath here." : !net ? "Toolpath preview needs OctoPrint or Moonraker." : loading ? "Loading toolpath…" : gcodeError || "No toolpath available."}
-            </div>
-          )}
+      <div className="model-preview">
+{gcode && gcode.layers.length ? (
+  <>
+    <ToolpathViewer 
+      gcode={gcode} 
+      layer={layer} 
+      bedWidth={printer.bedWidth} 
+      bedDepth={printer.bedDepth} 
+    />
+    <div className="layer-badge">
+      LAYER {layer + 1} / {gcode.layers.length}
+    </div>
+  </>
+) : (
+  <div className="preview-empty">
+    {!active 
+      ? "Start a print to see its toolpath here." 
+      : !net 
+        ? "Toolpath preview needs OctoPrint or Moonraker." 
+        : loading 
+          ? "Loading toolpath…" 
+          : gcodeError || "No toolpath available."
+    }
+  </div>
+)}
+
         </div>
         <div className="print-data">
           <div className="progress-heading">

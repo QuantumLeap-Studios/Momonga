@@ -10,16 +10,16 @@ export function ConnectionsPage({ onNavigate }: { onNavigate: (page: string) => 
 
   return (
     <div className="module-page">
-      <PageHeader title="Add printer" description="Choose how Momonga should connect." />
+      <PageHeader title="Add printer" description="" />
       <div className="connection-options">
-        <button className="panel connection-option" onClick={() => openPresetWindow(undefined, { connection: "usb" })}>
-          <span className="option-icon"><Icon name="usb" /></span>
-          <div><strong>USB serial</strong><p>Connect a printer directly to this computer.</p><span>Marlin · Klipper · RepRap</span></div>
-          <Icon name="chevron" />
-        </button>
-        <button className="panel connection-option" onClick={() => onNavigate("OctoPrint setup")}>
+      <button className="panel connection-option" onClick={() => onNavigate("OctoPrint setup")}>
           <span className="option-icon"><Icon name="wifi" /></span>
           <div><strong>OctoPrint</strong><p>Connect over the local network with an API key.</p><span>OctoPrint 1.8 or newer</span></div>
+          <Icon name="chevron" />
+        </button>
+        <button className="panel connection-option" onClick={() => openPresetWindow(undefined, { connection: "usb" })}>
+          <span className="option-icon"><Icon name="usb" /></span>
+          <div><strong>USB serial</strong><p>Connect a printer directly to this computer.</p><span className="untested-tag">Untested</span></div>
           <Icon name="chevron" />
         </button>
         <button className="panel connection-option" onClick={() => onNavigate("Moonraker setup")}>
@@ -29,7 +29,7 @@ export function ConnectionsPage({ onNavigate }: { onNavigate: (page: string) => 
         </button>
       </div>
       <section className="panel discovery-panel">
-        <div className="section-title"><div><strong>USB devices</strong><span>Serial ports detected on this computer.</span></div><Button onClick={refresh}>Rescan</Button></div>
+        <div className="section-title"><div><strong>USB devices</strong><span>Serial ports detected on this computer. (Note: Not all COM Ports are Printers, make sure you know which one is which)</span></div><Button onClick={refresh}>Rescan</Button></div>
         {ports.length === 0 && <p className="empty-note">No serial ports found.</p>}
         {ports.map((port) => (
           <div className="detected-device" key={port}>

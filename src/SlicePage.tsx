@@ -202,12 +202,12 @@ export function SlicePage({
 
   return (
     <div className="module-page">
-      <PageHeader title="Slice" description="Slice models into g-code with Momonga's built-in slicer."
+      <PageHeader title="Slice" description="Turn a model into g-code"
         action={<Button variant="primary" onClick={importModels}><Icon name="upload" size={16} /> Import model</Button>} />
       <div className="slicer-layout">
         <section className="panel slicer-stage">
           <div className="stage-toolbar">
-            <span>{models.length ? `${models.length} model${models.length > 1 ? "s" : ""}` : "No models — import or drop STL / OBJ files"}</span>
+            <span>{models.length ? `${models.length} model${models.length > 1 ? "s" : ""}` : "Waiting for a model... Cmon, import something!"}</span>
             <div><Button onClick={arrange} disabled={models.length < 2}>Arrange</Button></div>
           </div>
           <div className="slicer-canvas">

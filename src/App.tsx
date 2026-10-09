@@ -10,6 +10,7 @@ import { loadModel, extOf, fileName, MODEL_EXTS, GCODE_EXTS } from "./modelIO";
 import type { Model } from "./slicer/mesh";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { FilamentPage, FilesPage, GcodePage, type EditorDoc } from "./Pages";
+import { loadTheme, saveTheme, type ThemePref } from "./Theme";
 import {
   connectionLabel,
   deletePrinter,
@@ -98,10 +99,12 @@ const primaryNavItems: { label: string; icon: IconName }[] = [
   { label: "Overview", icon: "home" },
 ];
 const productionNavItems: { label: string; icon: IconName }[] = [
-  { label: "G-code editor", icon: "code" },
   { label: "Slice", icon: "cube" },
-  { label: "Printers", icon: "printer" },
+  { label: "G-code editor", icon: "code" },
   { label: "Files", icon: "layers" },
+];
+const devicesNavItems: { label: string; icon: IconName }[] = [
+  { label: "Printers", icon: "printer" },
   { label: "Filament", icon: "spool" },
 ];
 
@@ -139,6 +142,22 @@ function Sidebar({
           <div className="nav-label">Production</div>
           <div className="nav-children">
             {productionNavItems.map((item) => (
+              <button
+                key={item.label}
+                className={`nav-item nav-child ${active === item.label ? "active" : ""}`}
+                onClick={() => onSelect(item.label)}
+              >
+                <Icon name={item.icon} />
+                <span>{item.label}</span>
+                {/* {item.label === "Printers" && <span className="nav-count">{printerCount}</span>} */}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="nav-group">
+          <div className="nav-label">Devices</div>
+          <div className="nav-children">
+            {devicesNavItems.map((item) => (
               <button
                 key={item.label}
                 className={`nav-item nav-child ${active === item.label ? "active" : ""}`}
@@ -221,27 +240,9 @@ function QuickSlice({ onNavigate }: { onNavigate: (page: string) => void }) {
       </div>
       <button className="drop-zone" onClick={() => onNavigate("Slice")}>
         <span className="drop-icon"><Icon name="upload" size={20} /></span>
-        <strong>Drop a model anywhere</strong>
-        <small>STL or OBJ up to 300 MB (Or else you might run into issues!)</small>
+        <strong>Drag & Drop a model anywhere or select a file</strong>
       </button>
-      <div className="slice-options">
-        <label>
-          <span>Profile</span>
-          <select value={profile} onChange={(event) => setProfile(event.target.value)}>
-            <option>0.20 mm</option>
-            <option>0.12 mm Fine</option>
-            <option>0.28 mm Draft</option>
-          </select>
-        </label>
-        <label>
-          <span>Material</span>
-          <select defaultValue="PLA · Generic">
-            <option>PLA · Generic</option>
-            <option>PETG · Generic</option>
-            <option>ABS · Generic</option>
-          </select>
-        </label>
-      </div>
+
       <Button variant="primary" onClick={() => onNavigate("Slice")}><Icon name="cube" size={16} /> Open slicer</Button>
     </section>
   );
@@ -321,12 +322,30 @@ function PrinterSettingsPage({ printer, onNavigate, onDeleted }: { printer?: Pri
   );
 }
 function SettingsPage({ onNavigate }: { onNavigate: (page: string) => void }) {
+  const [theme, setTheme] = useState<ThemePref>(loadTheme);
   return (
     <div className="module-page settings-page">
-      <PageHeader title="Settings" description="Momonga preferences and integrations." action={<Button variant="primary">Save changes</Button>} />
-      <section className="panel form-section"><div className="form-heading"><strong>General</strong><span>Application behavior and local storage.</span></div><div className="form-grid"><label className="field"><span>Theme</span><select><option>Dark</option><option>System</option><option>Light</option></select></label><label className="field"><span>Units</span><select><option>Metric (mm, °C)</option><option>Imperial</option></select></label><Field label="Library location" value="~/Documents/Momonga" /><label className="field"><span>Update channel</span><select><option>Stable</option><option>Beta</option></select></label></div></section>
-      <section className="panel form-section"><div className="form-heading"><strong>Slicer</strong><span>Engine and default output settings.</span></div><div className="form-grid"><label className="field"><span>Slicing engine</span><select><option>PrusaSlicer</option><option>OrcaSlicer</option><option>CuraEngine</option></select></label><Field label="Executable" value="/Applications/PrusaSlicer.app" /><label className="field"><span>Default quality</span><select><option>0.20 mm Standard</option><option>0.12 mm Fine</option></select></label><label className="field"><span>After slicing</span><select><option>Open preview</option><option>Save to library</option><option>Send to printer</option></select></label></div></section>
-      <section className="panel form-section"><div className="form-heading"><strong>Connections</strong><span>Remote printer services.</span></div><div className="integration-row"><span className="option-icon"><Icon name="wifi" /></span><div><strong>OctoPrint</strong><span>Add an OctoPrint server</span></div><Button onClick={() => onNavigate("OctoPrint setup")}>Add server</Button></div><div className="integration-row"><span className="option-icon"><Icon name="link" /></span><div><strong>Moonraker</strong><span>Experimental, untested</span></div><Button onClick={() => onNavigate("Moonraker setup")}>Configure (untested)</Button></div></section>
+      <PageHeader title="Settings" description="Momonga preferences" />
+      <section className="panel form-section">
+        <div className="form-heading"><strong>General</strong><span></span></div>
+        <div className="form-grid">
+          <label className="field">
+            <span>Theme</span>
+            <select
+              value={theme}
+              onChange={(e) => {
+                const t = e.target.value as ThemePref;
+                setTheme(t);
+                saveTheme(t);
+              }}
+            >
+              <option value="dark">Dark</option>
+              <option value="system">System</option>
+              <option value="light">Light</option>
+            </select>
+          </label>
+        </div>
+      </section>
     </div>
   );
 }
@@ -383,6 +402,7 @@ export default function App() {
   const featured = printers.find((p) => isActiveState(fleet[p.id]?.status)) ?? selected;
   const today = new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
   const sidebarActive = active.startsWith("Printer") ? "Printers" : active;
+  {/* TODO: Find a better way of doing this... */}
   const section = ["Slice", "Printers", "Printer detail", "Printer settings", "Files", "Filament", "G-code editor"].includes(active) ? "Production" : active === "Overview" ? "" : "Workspace";
 
   const renderPage = () => {
@@ -412,9 +432,8 @@ export default function App() {
             {active === "Overview" && <div className="page-subtitle">{today}</div>}
           </div>
           <div className="top-actions">
-            <div className="connection-pill"><span /> {printers.length} {printers.length === 1 ? "printer" : "printers"}</div>
-            <Button onClick={() => setActive("Connections")}><Icon name="usb" size={16} /> Connect</Button>
-            <Button variant="primary" onClick={() => setActive("Slice")}><Icon name="plus" size={16} /> New job</Button>
+            <div className="connection-pill"><span /> {printers.length} {printers.length === 1 ? "printer" : "printers"} connected</div>
+            <Button variant="primary" onClick={() => setActive("Connections")}><Icon name="usb" size={16} /> Connect</Button>
           </div>
         </header>
 
