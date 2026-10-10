@@ -10,8 +10,6 @@
 	
 </p>
 
----
-
 **Momonga** is a 3D Printing all-in-one platform that a built-in dedicated slicer & GCode Editor, OctoPrint support, fillament tracker, and more!
 
 ---
