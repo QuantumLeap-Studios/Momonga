@@ -42,7 +42,14 @@ const disposeMesh = (m: THREE.Mesh) => {
   (m.material as THREE.Material).dispose();
 };
 
-export function SlicerViewport({ bed, models, selectedId, onSelect, onMove, cut }: Props) {
+export function SlicerViewport({
+  bed,
+  models,
+  selectedId,
+  onSelect,
+  onMove,
+  cut,
+}: Props) {
   const host = useRef<HTMLDivElement>(null);
   const api = useRef<Api | null>(null);
   const cb = useRef({ onSelect, onMove });
@@ -66,7 +73,13 @@ export function SlicerViewport({ bed, models, selectedId, onSelect, onMove, cut 
     scene.add(bedGroup);
     const cutMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(1, 1),
-      new THREE.MeshBasicMaterial({ color: 0xf0a030, transparent: true, opacity: 0.25, side: THREE.DoubleSide, depthWrite: false }),
+      new THREE.MeshBasicMaterial({
+        color: 0xf0a030,
+        transparent: true,
+        opacity: 0.25,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      }),
     );
     cutMesh.visible = false;
     scene.add(cutMesh);
@@ -74,7 +87,8 @@ export function SlicerViewport({ bed, models, selectedId, onSelect, onMove, cut 
     api.current = { scene, camera, controls, entries, bedGroup, cutMesh };
 
     const resize = () => {
-      const w = el.clientWidth || 1, h = el.clientHeight || 1;
+      const w = el.clientWidth || 1,
+        h = el.clientHeight || 1;
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
@@ -85,15 +99,25 @@ export function SlicerViewport({ bed, models, selectedId, onSelect, onMove, cut 
 
     const ray = new THREE.Raycaster();
     const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-    let drag: { id: string; mesh: THREE.Mesh; start: THREE.Vector3; moved: boolean } | null = null;
+    let drag: {
+      id: string;
+      mesh: THREE.Mesh;
+      start: THREE.Vector3;
+      moved: boolean;
+    } | null = null;
     const ndc = (e: PointerEvent) => {
       const r = renderer.domElement.getBoundingClientRect();
-      return new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      return new THREE.Vector2(
+        ((e.clientX - r.left) / r.width) * 2 - 1,
+        -((e.clientY - r.top) / r.height) * 2 + 1,
+      );
     };
     const onDown = (e: PointerEvent) => {
       if (e.button !== 0) return;
       ray.setFromCamera(ndc(e), camera);
-      const hit = ray.intersectObjects([...entries.values()].map((x) => x.mesh))[0];
+      const hit = ray.intersectObjects(
+        [...entries.values()].map((x) => x.mesh),
+      )[0];
       if (!hit) {
         cb.current.onSelect(null);
         return;
@@ -124,7 +148,12 @@ export function SlicerViewport({ bed, models, selectedId, onSelect, onMove, cut 
       renderer.domElement.releasePointerCapture(e.pointerId);
       if (d.moved) {
         const ent = entries.get(d.id);
-        if (ent) cb.current.onMove(d.id, ent.ref.x + d.mesh.position.x, ent.ref.y - d.mesh.position.z);
+        if (ent)
+          cb.current.onMove(
+            d.id,
+            ent.ref.x + d.mesh.position.x,
+            ent.ref.y - d.mesh.position.z,
+          );
         d.mesh.position.set(0, 0, 0);
       }
     };
@@ -161,15 +190,26 @@ export function SlicerViewport({ bed, models, selectedId, onSelect, onMove, cut 
       a.bedGroup.remove(c);
       (c as THREE.Mesh).geometry?.dispose();
     }
-    const plate = new THREE.Mesh(new THREE.BoxGeometry(w, 2, d), new THREE.MeshStandardMaterial({ color: 0x3b3f42, roughness: 0.8 }));
+    const plate = new THREE.Mesh(
+      new THREE.BoxGeometry(w, 2, d),
+      new THREE.MeshStandardMaterial({ color: 0x3b3f42, roughness: 0.8 }),
+    );
     plate.position.y = -1;
     const pts: number[] = [];
-    for (let x = 0; x <= w; x += 10) pts.push(x - w / 2, 0.05, -d / 2, x - w / 2, 0.05, d / 2);
-    for (let y = 0; y <= d; y += 10) pts.push(-w / 2, 0.05, y - d / 2, w / 2, 0.05, y - d / 2);
+    for (let x = 0; x <= w; x += 10)
+      pts.push(x - w / 2, 0.05, -d / 2, x - w / 2, 0.05, d / 2);
+    for (let y = 0; y <= d; y += 10)
+      pts.push(-w / 2, 0.05, y - d / 2, w / 2, 0.05, y - d / 2);
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-    const grid = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: 0x5a6064 }));
-    const box = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(w, h, d)), new THREE.LineBasicMaterial({ color: 0x00a68c }));
+    const grid = new THREE.LineSegments(
+      g,
+      new THREE.LineBasicMaterial({ color: 0x5a6064 }),
+    );
+    const box = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(w, h, d)),
+      new THREE.LineBasicMaterial({ color: 0x00a68c }),
+    );
     box.position.y = h / 2;
     a.bedGroup.add(plate, grid, box);
     for (const e of a.entries.values()) {
@@ -200,9 +240,17 @@ export function SlicerViewport({ bed, models, selectedId, onSelect, onMove, cut 
       if (old && old.ref === m) continue;
       const world = worldTris(m);
       const b = bounds(world);
-      const outside = b.min[0] < -0.01 || b.min[1] < -0.01 || b.max[0] > w + 0.01 || b.max[1] > d + 0.01 || b.max[2] > bed.height;
+      const outside =
+        b.min[0] < -0.01 ||
+        b.min[1] < -0.01 ||
+        b.max[0] > w + 0.01 ||
+        b.max[1] > d + 0.01 ||
+        b.max[2] > bed.height;
       const geom = new THREE.BufferGeometry();
-      geom.setAttribute("position", new THREE.BufferAttribute(toThree(w, d, world), 3));
+      geom.setAttribute(
+        "position",
+        new THREE.BufferAttribute(toThree(w, d, world), 3),
+      );
       geom.computeVertexNormals();
       let mesh: THREE.Mesh;
       if (old) {
@@ -210,7 +258,14 @@ export function SlicerViewport({ bed, models, selectedId, onSelect, onMove, cut 
         mesh.geometry.dispose();
         mesh.geometry = geom;
       } else {
-        mesh = new THREE.Mesh(geom, new THREE.MeshStandardMaterial({ color: 0xc9d1d3, roughness: 0.55, side: THREE.DoubleSide }));
+        mesh = new THREE.Mesh(
+          geom,
+          new THREE.MeshStandardMaterial({
+            color: 0xc9d1d3,
+            roughness: 0.55,
+            side: THREE.DoubleSide,
+          }),
+        );
         a.scene.add(mesh);
       }
       a.entries.set(m.id, { ref: m, mesh, outside });
@@ -221,7 +276,9 @@ export function SlicerViewport({ bed, models, selectedId, onSelect, onMove, cut 
     const a = api.current;
     if (!a) return;
     for (const [id, e] of a.entries) {
-      (e.mesh.material as THREE.MeshStandardMaterial).color.set(e.outside ? 0xe0554f : id === selectedId ? 0x2fd0b4 : 0xc9d1d3);
+      (e.mesh.material as THREE.MeshStandardMaterial).color.set(
+        e.outside ? 0xe0554f : id === selectedId ? 0x2fd0b4 : 0xc9d1d3,
+      );
     }
   }, [models, selectedId, bed.width, bed.depth]);
 

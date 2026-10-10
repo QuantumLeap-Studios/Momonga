@@ -4,8 +4,10 @@ import { newModel, parseObj, parseStl, type Model } from "./slicer/mesh";
 export const MODEL_EXTS = ["stl", "obj"];
 export const GCODE_EXTS = ["gcode", "gco", "g"];
 
-export const extOf = (path: string) => (path.split(".").pop() ?? "").toLowerCase();
-export const fileName = (path: string) => path.replace(/\\/g, "/").split("/").pop() ?? path;
+export const extOf = (path: string) =>
+  (path.split(".").pop() ?? "").toLowerCase();
+export const fileName = (path: string) =>
+  path.replace(/\\/g, "/").split("/").pop() ?? path;
 
 export async function loadModel(path: string): Promise<Model> {
   const ext = extOf(path);

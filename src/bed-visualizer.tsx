@@ -25,7 +25,8 @@ function clear(group: THREE.Group) {
     child.traverse((obj) => {
       const mesh = obj as THREE.Mesh;
       mesh.geometry?.dispose();
-      const material = mesh.material as THREE.Material | THREE.Material[] | undefined;
+      const material = mesh.material as
+        THREE.Material | THREE.Material[] | undefined;
       if (Array.isArray(material)) material.forEach((m) => m.dispose());
       else material?.dispose();
     });
@@ -34,8 +35,14 @@ function clear(group: THREE.Group) {
 
 function line(points: number[], color: number, opacity = 1) {
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
-  return new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color, transparent: opacity < 1, opacity }));
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(points, 3),
+  );
+  return new THREE.LineSegments(
+    geometry,
+    new THREE.LineBasicMaterial({ color, transparent: opacity < 1, opacity }),
+  );
 }
 
 function buildBed(group: THREE.Group, { w, d, h }: Dims) {
@@ -50,10 +57,24 @@ function buildBed(group: THREE.Group, { w, d, h }: Dims) {
   const minor: number[] = [];
   const major: number[] = [];
   for (let x = 0; x <= w + 1e-6; x += 10) {
-    (Math.round(x) % 50 === 0 ? major : minor).push(x - w / 2, 0.05, -d / 2, x - w / 2, 0.05, d / 2);
+    (Math.round(x) % 50 === 0 ? major : minor).push(
+      x - w / 2,
+      0.05,
+      -d / 2,
+      x - w / 2,
+      0.05,
+      d / 2,
+    );
   }
   for (let z = 0; z <= d + 1e-6; z += 10) {
-    (Math.round(z) % 50 === 0 ? major : minor).push(-w / 2, 0.05, z - d / 2, w / 2, 0.05, z - d / 2);
+    (Math.round(z) % 50 === 0 ? major : minor).push(
+      -w / 2,
+      0.05,
+      z - d / 2,
+      w / 2,
+      0.05,
+      z - d / 2,
+    );
   }
   group.add(line(minor, 0x5a6064, 0.6), line(major, 0x8a9296));
 
@@ -75,7 +96,11 @@ function buildBed(group: THREE.Group, { w, d, h }: Dims) {
   const s = Math.min(w, d) * 0.06;
   const head = new THREE.Mesh(
     new THREE.CylinderGeometry(s, s * 0.15, s * 2.2, 6),
-    new THREE.MeshStandardMaterial({ color: 0xc9a24a, metalness: 0.7, roughness: 0.4 }),
+    new THREE.MeshStandardMaterial({
+      color: 0xc9a24a,
+      metalness: 0.7,
+      roughness: 0.4,
+    }),
   );
   head.rotation.x = Math.PI;
   head.position.y = s * 1.1;
@@ -112,9 +137,15 @@ function buildNozzle(group: THREE.Group, nozzle: number, filament: number) {
     opacity: 0.45,
     depthWrite: false,
   });
-  const cone = new THREE.Mesh(new THREE.CylinderGeometry(3, tipRadius, coneH, 40), bodyMat);
+  const cone = new THREE.Mesh(
+    new THREE.CylinderGeometry(3, tipRadius, coneH, 40),
+    bodyMat,
+  );
   cone.position.y = layer + coneH / 2;
-  const hex = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, hexH, 6), bodyMat);
+  const hex = new THREE.Mesh(
+    new THREE.CylinderGeometry(4, 4, hexH, 6),
+    bodyMat,
+  );
   hex.position.y = layer + coneH + hexH / 2;
   group.add(cone, hex);
 
@@ -142,7 +173,11 @@ export default function BedVisualizer(props: Props) {
     bed: THREE.Group;
     nozzle: THREE.Group;
   } | null>(null);
-  const dims = useRef<Dims>({ w: props.bedWidth, d: props.bedDepth, h: props.buildHeight });
+  const dims = useRef<Dims>({
+    w: props.bedWidth,
+    d: props.bedDepth,
+    h: props.buildHeight,
+  });
   dims.current = { w: props.bedWidth, d: props.bedDepth, h: props.buildHeight };
 
   useEffect(() => {
@@ -200,11 +235,21 @@ export default function BedVisualizer(props: Props) {
   }, []);
 
   useEffect(() => {
-    if (three.current) buildBed(three.current.bed, { w: props.bedWidth, d: props.bedDepth, h: props.buildHeight });
+    if (three.current)
+      buildBed(three.current.bed, {
+        w: props.bedWidth,
+        d: props.bedDepth,
+        h: props.buildHeight,
+      });
   }, [props.bedWidth, props.bedDepth, props.buildHeight]);
 
   useEffect(() => {
-    if (three.current) buildNozzle(three.current.nozzle, props.nozzleDiameter, props.filamentDiameter);
+    if (three.current)
+      buildNozzle(
+        three.current.nozzle,
+        props.nozzleDiameter,
+        props.filamentDiameter,
+      );
   }, [props.nozzleDiameter, props.filamentDiameter]);
 
   useEffect(() => {
@@ -226,4 +271,3 @@ export default function BedVisualizer(props: Props) {
 
   return <div ref={host} className="visualizer-canvas" />;
 }
-

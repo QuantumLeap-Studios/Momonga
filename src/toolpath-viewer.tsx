@@ -36,7 +36,15 @@ const disposeGroup = (g: THREE.Group) => {
   }
 };
 
-export function ToolpathViewer({ gcode, layer, bedWidth = 220, bedDepth = 220, selectedPath = null, onPick, onDrag }: Props) {
+export function ToolpathViewer({
+  gcode,
+  layer,
+  bedWidth = 220,
+  bedDepth = 220,
+  selectedPath = null,
+  onPick,
+  onDrag,
+}: Props) {
   const host = useRef<HTMLDivElement>(null);
   const s = useRef<Scene | null>(null);
   const cb = useRef({ onPick, onDrag, gcode, selectedPath });
@@ -56,14 +64,27 @@ export function ToolpathViewer({ gcode, layer, bedWidth = 220, bedDepth = 220, s
     scene.add(model);
     const selGroup = new THREE.Group();
     scene.add(selGroup);
-    const state: Scene = { renderer, scene, camera, controls, model, selGroup, layerEnd: [], layerStart: [], raf: 0 };
+    const state: Scene = {
+      renderer,
+      scene,
+      camera,
+      controls,
+      model,
+      selGroup,
+      layerEnd: [],
+      layerStart: [],
+      raf: 0,
+    };
     s.current = state;
 
     const ray = new THREE.Raycaster();
     ray.params.Line = { threshold: 0.6 };
     const ndc = (e: PointerEvent) => {
       const r = renderer.domElement.getBoundingClientRect();
-      return new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      return new THREE.Vector2(
+        ((e.clientX - r.left) / r.width) * 2 - 1,
+        -((e.clientY - r.top) / r.height) * 2 + 1,
+      );
     };
     const pick = (e: PointerEvent): number | null => {
       const g = cb.current.gcode;
@@ -72,7 +93,8 @@ export function ToolpathViewer({ gcode, layer, bedWidth = 220, bedDepth = 220, s
       const hit = ray.intersectObject(state.paths)[0];
       if (!hit || hit.index === undefined) return null;
       const seg = Math.floor(hit.index / 2);
-      let lo = 0, hi = g.paths.length - 1;
+      let lo = 0,
+        hi = g.paths.length - 1;
       while (lo < hi) {
         const mid = (lo + hi + 1) >> 1;
         if (g.paths[mid].seg0 <= seg) lo = mid;
@@ -80,7 +102,13 @@ export function ToolpathViewer({ gcode, layer, bedWidth = 220, bedDepth = 220, s
       }
       return seg < g.paths[lo].seg1 ? lo : null;
     };
-    let down: { x: number; y: number; drag: boolean; plane: THREE.Plane; origin: THREE.Vector3 } | null = null;
+    let down: {
+      x: number;
+      y: number;
+      drag: boolean;
+      plane: THREE.Plane;
+      origin: THREE.Vector3;
+    } | null = null;
     const onDown = (e: PointerEvent) => {
       if (e.button !== 0) return;
       const sel = cb.current.selectedPath;
@@ -88,7 +116,10 @@ export function ToolpathViewer({ gcode, layer, bedWidth = 220, bedDepth = 220, s
       const hit = pick(e);
       const origin = new THREE.Vector3();
       if (sel !== null && hit === sel && g?.paths[sel]?.movable) {
-        const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -g.paths[sel].start[2]);
+        const plane = new THREE.Plane(
+          new THREE.Vector3(0, 1, 0),
+          -g.paths[sel].start[2],
+        );
         ray.setFromCamera(ndc(e), camera);
         if (ray.ray.intersectPlane(plane, origin)) {
           down = { x: e.clientX, y: e.clientY, drag: true, plane, origin };
@@ -98,13 +129,20 @@ export function ToolpathViewer({ gcode, layer, bedWidth = 220, bedDepth = 220, s
           return;
         }
       }
-      down = { x: e.clientX, y: e.clientY, drag: false, plane: new THREE.Plane(), origin };
+      down = {
+        x: e.clientX,
+        y: e.clientY,
+        drag: false,
+        plane: new THREE.Plane(),
+        origin,
+      };
     };
     const onMove = (e: PointerEvent) => {
       if (!down?.drag) return;
       ray.setFromCamera(ndc(e), camera);
       const p = new THREE.Vector3();
-      if (ray.ray.intersectPlane(down.plane, p)) selGroup.position.set(p.x - down.origin.x, 0, p.z - down.origin.z);
+      if (ray.ray.intersectPlane(down.plane, p))
+        selGroup.position.set(p.x - down.origin.x, 0, p.z - down.origin.z);
     };
     const onUp = (e: PointerEvent) => {
       const d = down;
@@ -113,7 +151,8 @@ export function ToolpathViewer({ gcode, layer, bedWidth = 220, bedDepth = 220, s
       if (d.drag) {
         controls.enabled = true;
         renderer.domElement.releasePointerCapture(e.pointerId);
-        const dx = selGroup.position.x, dy = -selGroup.position.z;
+        const dx = selGroup.position.x,
+          dy = -selGroup.position.z;
         selGroup.position.set(0, 0, 0);
         if (Math.hypot(dx, dy) > 0.05) cb.current.onDrag?.(dx, dy);
       } else if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 4) {
@@ -164,11 +203,32 @@ export function ToolpathViewer({ gcode, layer, bedWidth = 220, bedDepth = 220, s
     st.layerStart = [];
 
     const grid: number[] = [];
-    for (let x = 0; x <= bedWidth; x += 10) grid.push(x - bedWidth / 2, 0, -bedDepth / 2, x - bedWidth / 2, 0, bedDepth / 2);
-    for (let y = 0; y <= bedDepth; y += 10) grid.push(-bedWidth / 2, 0, y - bedDepth / 2, bedWidth / 2, 0, y - bedDepth / 2);
+    for (let x = 0; x <= bedWidth; x += 10)
+      grid.push(
+        x - bedWidth / 2,
+        0,
+        -bedDepth / 2,
+        x - bedWidth / 2,
+        0,
+        bedDepth / 2,
+      );
+    for (let y = 0; y <= bedDepth; y += 10)
+      grid.push(
+        -bedWidth / 2,
+        0,
+        y - bedDepth / 2,
+        bedWidth / 2,
+        0,
+        y - bedDepth / 2,
+      );
     const gg = new THREE.BufferGeometry();
     gg.setAttribute("position", new THREE.Float32BufferAttribute(grid, 3));
-    st.model.add(new THREE.LineSegments(gg, new THREE.LineBasicMaterial({ color: 0x3a3a3a })));
+    st.model.add(
+      new THREE.LineSegments(
+        gg,
+        new THREE.LineBasicMaterial({ color: 0x3a3a3a }),
+      ),
+    );
 
     let top = 50;
     if (gcode && gcode.layers.length) {
@@ -185,7 +245,9 @@ export function ToolpathViewer({ gcode, layer, bedWidth = 220, bedDepth = 220, s
           pos[o + 1] = l[i + 2];
           pos[o + 2] = -(l[i + 1] - bedDepth / 2);
           c.setHSL(0.5 - 0.5 * (l[i + 2] / maxZ), 0.7, 0.45);
-          col[o] = c.r; col[o + 1] = c.g; col[o + 2] = c.b;
+          col[o] = c.r;
+          col[o + 1] = c.g;
+          col[o + 2] = c.b;
           o += 3;
         }
         st.layerEnd.push(o / 3);
@@ -193,10 +255,16 @@ export function ToolpathViewer({ gcode, layer, bedWidth = 220, bedDepth = 220, s
       const geo = new THREE.BufferGeometry();
       geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
       geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
-      st.paths = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ vertexColors: true }));
+      st.paths = new THREE.LineSegments(
+        geo,
+        new THREE.LineBasicMaterial({ vertexColors: true }),
+      );
       const geo2 = new THREE.BufferGeometry();
       geo2.setAttribute("position", geo.getAttribute("position"));
-      st.current = new THREE.LineSegments(geo2, new THREE.LineBasicMaterial({ color: 0xffffff }));
+      st.current = new THREE.LineSegments(
+        geo2,
+        new THREE.LineBasicMaterial({ color: 0xffffff }),
+      );
       st.model.add(st.paths, st.current);
       top = maxZ;
     }
@@ -211,7 +279,10 @@ export function ToolpathViewer({ gcode, layer, bedWidth = 220, bedDepth = 220, s
     if (!st?.paths || !st.current || !st.layerEnd.length) return;
     const i = Math.min(Math.max(layer, 0), st.layerEnd.length - 1);
     st.paths.geometry.setDrawRange(0, st.layerEnd[i]);
-    st.current.geometry.setDrawRange(st.layerStart[i], st.layerEnd[i] - st.layerStart[i]);
+    st.current.geometry.setDrawRange(
+      st.layerStart[i],
+      st.layerEnd[i] - st.layerStart[i],
+    );
   }, [layer, gcode]);
 
   useEffect(() => {
@@ -219,13 +290,17 @@ export function ToolpathViewer({ gcode, layer, bedWidth = 220, bedDepth = 220, s
     if (!st) return;
     disposeGroup(st.selGroup);
     st.selGroup.position.set(0, 0, 0);
-    const p: GPath | undefined = selectedPath === null ? undefined : gcode?.paths[selectedPath];
+    const p: GPath | undefined =
+      selectedPath === null ? undefined : gcode?.paths[selectedPath];
     const src = st.paths?.geometry.getAttribute("position");
     if (!p || !src) return;
     const arr = (src.array as Float32Array).slice(p.seg0 * 6, p.seg1 * 6);
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(arr, 3));
-    const line = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: 0xffd23f, depthTest: false }));
+    const line = new THREE.LineSegments(
+      g,
+      new THREE.LineBasicMaterial({ color: 0xffd23f, depthTest: false }),
+    );
     line.renderOrder = 10;
     st.selGroup.add(line);
   }, [selectedPath, gcode]);

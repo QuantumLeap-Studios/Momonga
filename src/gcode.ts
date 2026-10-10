@@ -21,7 +21,13 @@ export interface ParsedGcode {
   moves: number;
   seconds: number;
   truncated: boolean;
-  bounds: { minX: number; maxX: number; minY: number; maxY: number; maxZ: number };
+  bounds: {
+    minX: number;
+    maxX: number;
+    minY: number;
+    maxY: number;
+    maxZ: number;
+  };
 }
 
 export interface GcodeWarning {
@@ -46,10 +52,21 @@ export function parseGcode(text: string): ParsedGcode {
     moves: 0,
     seconds: 0,
     truncated: false,
-    bounds: { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity, maxZ: 0 },
+    bounds: {
+      minX: Infinity,
+      maxX: -Infinity,
+      minY: Infinity,
+      maxY: -Infinity,
+      maxZ: 0,
+    },
   };
-  let x = 0, y = 0, z = 0, e = 0, f = 3000;
-  let absXYZ = true, absE = true;
+  let x = 0,
+    y = 0,
+    z = 0,
+    e = 0,
+    f = 3000;
+  let absXYZ = true,
+    absE = true;
   let layer: number[] | null = null;
   let layerZ = NaN;
   let segments = 0;
@@ -64,7 +81,9 @@ export function parseGcode(text: string): ParsedGcode {
     const start = pos;
     pos = end + 1;
     const semi = text.indexOf(";", start);
-    const code = (semi >= 0 && semi < end ? text.slice(start, semi) : text.slice(start, end)).trim();
+    const code = (
+      semi >= 0 && semi < end ? text.slice(start, semi) : text.slice(start, end)
+    ).trim();
     if (!code) continue;
     const words = code.toUpperCase().split(/\s+/);
     const cmd = words[0];
@@ -77,16 +96,30 @@ export function parseGcode(text: string): ParsedGcode {
       open = null;
       for (const w of words.slice(1)) if (w[0] === "E") e = num(w) || 0;
     } else if (cmd === "G0" || cmd === "G1" || cmd === "G00" || cmd === "G01") {
-      let nx = x, ny = y, nz = z, de = 0;
+      let nx = x,
+        ny = y,
+        nz = z,
+        de = 0;
       for (const w of words.slice(1)) {
         const v = num(w);
         if (Number.isNaN(v)) continue;
         switch (w[0]) {
-          case "X": nx = absXYZ ? v : x + v; break;
-          case "Y": ny = absXYZ ? v : y + v; break;
-          case "Z": nz = absXYZ ? v : z + v; break;
-          case "E": de = absE ? v - e : v; e = absE ? v : e + v; break;
-          case "F": if (v > 0) f = v; break;
+          case "X":
+            nx = absXYZ ? v : x + v;
+            break;
+          case "Y":
+            ny = absXYZ ? v : y + v;
+            break;
+          case "Z":
+            nz = absXYZ ? v : z + v;
+            break;
+          case "E":
+            de = absE ? v - e : v;
+            e = absE ? v : e + v;
+            break;
+          case "F":
+            if (v > 0) f = v;
+            break;
         }
       }
       const dist = Math.hypot(nx - x, ny - y, nz - z);
@@ -105,7 +138,19 @@ export function parseGcode(text: string): ParsedGcode {
         if (segments < MAX_SEGMENTS) {
           const newLayer = layer.length === 0;
           if (!open || newLayer) {
-            open = { layer: out.layers.length - 1, seg0: segments, seg1: segments, lineFirst: lineNo, lineLast: lineNo, start: [x, y, z], end: [nx, ny, nz], eStart: e - de, eEnd: e, absE, movable: absXYZ };
+            open = {
+              layer: out.layers.length - 1,
+              seg0: segments,
+              seg1: segments,
+              lineFirst: lineNo,
+              lineLast: lineNo,
+              start: [x, y, z],
+              end: [nx, ny, nz],
+              eStart: e - de,
+              eEnd: e,
+              absE,
+              movable: absXYZ,
+            };
             out.paths.push(open);
           }
           layer.push(x, y, z, nx, ny, nz);
@@ -124,7 +169,9 @@ export function parseGcode(text: string): ParsedGcode {
         b.maxY = Math.max(b.maxY, y, ny);
         b.maxZ = Math.max(b.maxZ, nz);
       }
-      x = nx; y = ny; z = nz;
+      x = nx;
+      y = ny;
+      z = nz;
     }
   }
   return out;
@@ -133,7 +180,8 @@ export function parseGcode(text: string): ParsedGcode {
 export function layerAtFraction(g: ParsedGcode, fraction: number): number {
   if (!g.layers.length) return -1;
   const target = fraction * g.totalChars;
-  let lo = 0, hi = g.layerStart.length - 1;
+  let lo = 0,
+    hi = g.layerStart.length - 1;
   while (lo < hi) {
     const mid = (lo + hi + 1) >> 1;
     if (g.layerStart[mid] <= target) lo = mid;
@@ -142,7 +190,12 @@ export function layerAtFraction(g: ParsedGcode, fraction: number): number {
   return lo;
 }
 
-export function validateGcode(text: string, maxHotend: number, maxBed: number, buildHeight: number): GcodeWarning[] {
+export function validateGcode(
+  text: string,
+  maxHotend: number,
+  maxBed: number,
+  buildHeight: number,
+): GcodeWarning[] {
   const warnings: GcodeWarning[] = [];
   const add = (line: number, message: string) => {
     if (warnings.length < 200) warnings.push({ line, message });
@@ -157,19 +210,32 @@ export function validateGcode(text: string, maxHotend: number, maxBed: number, b
     if (cmd === "G90") absXYZ = true;
     if (cmd === "G91") absXYZ = false;
     if (cmd === "M112") add(i + 1, "M112 is an emergency stop");
-    const limit = cmd === "M104" || cmd === "M109" ? maxHotend : cmd === "M140" || cmd === "M190" ? maxBed : null;
+    const limit =
+      cmd === "M104" || cmd === "M109"
+        ? maxHotend
+        : cmd === "M140" || cmd === "M190"
+          ? maxBed
+          : null;
     if (limit !== null) {
       for (const w of words.slice(1)) {
         if (w[0] === "S" || w[0] === "R") {
           const v = num(w);
           if (Number.isNaN(v)) add(i + 1, `Invalid temperature in ${cmd}`);
-          else if (v > limit) add(i + 1, `${cmd} ${w} exceeds this printer's limit of ${limit}°C`);
+          else if (v > limit)
+            add(
+              i + 1,
+              `${cmd} ${w} exceeds this printer's limit of ${limit}°C`,
+            );
         }
       }
     }
     if ((cmd === "G0" || cmd === "G1") && absXYZ) {
       for (const w of words.slice(1)) {
-        if (w[0] === "Z" && num(w) > buildHeight) add(i + 1, `Z${num(w)} is above the build height of ${buildHeight} mm`);
+        if (w[0] === "Z" && num(w) > buildHeight)
+          add(
+            i + 1,
+            `Z${num(w)} is above the build height of ${buildHeight} mm`,
+          );
       }
     }
   }

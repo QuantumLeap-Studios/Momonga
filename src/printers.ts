@@ -46,14 +46,26 @@ export const newPreset = (): PrinterPreset => ({
 });
 
 export const connectionLabel = (p: PrinterPreset) =>
-  ({ usb: "USB", octoprint: "OctoPrint", moonraker: "Moonraker" })[p.connection];
+  ({ usb: "USB", octoprint: "OctoPrint", moonraker: "Moonraker" })[
+    p.connection
+  ];
 
-export const cameraStreamUrl = (id: string) => invoke<string>("camera_stream_url", { id });
+export const cameraStreamUrl = (id: string) =>
+  invoke<string>("camera_stream_url", { id });
 export const listPrinters = () => invoke<PrinterPreset[]>("list_printers");
-export const savePrinter = (preset: PrinterPreset) => invoke<PrinterPreset>("save_printer", { preset });
-export const deletePrinter = (id: string) => invoke<void>("delete_printer", { id });
-export const openPresetWindow = (id?: string, opts?: { connection?: ConnectionType; port?: string }) =>
-  invoke<void>("open_preset_window", { id: id ?? null, connection: opts?.connection ?? null, port: opts?.port ?? null });
+export const savePrinter = (preset: PrinterPreset) =>
+  invoke<PrinterPreset>("save_printer", { preset });
+export const deletePrinter = (id: string) =>
+  invoke<void>("delete_printer", { id });
+export const openPresetWindow = (
+  id?: string,
+  opts?: { connection?: ConnectionType; port?: string },
+) =>
+  invoke<void>("open_preset_window", {
+    id: id ?? null,
+    connection: opts?.connection ?? null,
+    port: opts?.port ?? null,
+  });
 
 export interface Temp {
   actual: number;
@@ -80,21 +92,33 @@ export interface RemoteFile {
   lastSuccess: boolean | null;
 }
 
-export const testConnection = (kind: ConnectionType, url: string, apiKey: string) =>
-  invoke<string>("test_connection", { kind, url, apiKey });
-export const printerStatus = (id: string) => invoke<PrinterStatus>("printer_status", { id });
-export const sendGcode = (id: string, lines: string[]) => invoke<void>("send_gcode", { id, lines });
+export const testConnection = (
+  kind: ConnectionType,
+  url: string,
+  apiKey: string,
+) => invoke<string>("test_connection", { kind, url, apiKey });
+export const printerStatus = (id: string) =>
+  invoke<PrinterStatus>("printer_status", { id });
+export const sendGcode = (id: string, lines: string[]) =>
+  invoke<void>("send_gcode", { id, lines });
 export const uploadGcode = (id: string, path: string, startPrint: boolean) =>
   invoke<string>("upload_gcode", { id, path, startPrint });
-export const listRemoteFiles = (id: string) => invoke<RemoteFile[]>("list_remote_files", { id });
-export const fetchRemoteGcode = (id: string, path: string) => invoke<string>("fetch_remote_gcode", { id, path });
-export const jobCommand = (id: string, action: "pause" | "resume" | "cancel") => invoke<void>("job_command", { id, action });
-export const startRemotePrint = (id: string, path: string) => invoke<void>("start_remote_print", { id, path });
-export const readGcodeFile = (path: string) => invoke<string>("read_gcode_file", { path });
-export const writeGcodeFile = (path: string, text: string) => invoke<void>("write_gcode_file", { path, text });
+export const listRemoteFiles = (id: string) =>
+  invoke<RemoteFile[]>("list_remote_files", { id });
+export const fetchRemoteGcode = (id: string, path: string) =>
+  invoke<string>("fetch_remote_gcode", { id, path });
+export const jobCommand = (id: string, action: "pause" | "resume" | "cancel") =>
+  invoke<void>("job_command", { id, action });
+export const startRemotePrint = (id: string, path: string) =>
+  invoke<void>("start_remote_print", { id, path });
+export const readGcodeFile = (path: string) =>
+  invoke<string>("read_gcode_file", { path });
+export const writeGcodeFile = (path: string, text: string) =>
+  invoke<void>("write_gcode_file", { path, text });
 export const listSerialPorts = () => invoke<string[]>("list_serial_ports");
 export const usbConnect = (id: string) => invoke<void>("usb_connect", { id });
-export const usbDisconnect = (id: string) => invoke<void>("usb_disconnect", { id });
+export const usbDisconnect = (id: string) =>
+  invoke<void>("usb_disconnect", { id });
 
 export function usePrinterStatus(id: string | undefined, intervalMs = 2000) {
   const [status, setStatus] = useState<PrinterStatus | null>(null);

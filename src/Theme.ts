@@ -1,11 +1,10 @@
-// TODO: modify the preset system
+// TODO: put inside preset system instead
 export type ThemePref = "dark" | "system" | "light";
 
 const KEY = "momonga.theme";
 const PREFS: ThemePref[] = ["dark", "system", "light"];
 
 export function loadTheme(): ThemePref {
-  
   const v = localStorage.getItem(KEY) as ThemePref | null;
   if (v && PREFS.includes(v)) return v;
   return "system";
@@ -13,7 +12,9 @@ export function loadTheme(): ThemePref {
 
 function resolve(pref: ThemePref): "dark" | "light" {
   if (pref === "system") {
-    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    return window.matchMedia("(prefers-color-scheme: light)").matches
+      ? "light"
+      : "dark";
   }
   return pref;
 }

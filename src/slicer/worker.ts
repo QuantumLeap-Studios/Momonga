@@ -16,9 +16,14 @@ self.onmessage = (e: MessageEvent<SliceRequest>) => {
   const post = (m: SliceMessage) => (self as unknown as Worker).postMessage(m);
   try {
     const { tris, settings, bed } = e.data;
-    const result = sliceMesh(tris, settings, bed, (fraction, message) => post({ type: "progress", fraction, message }));
+    const result = sliceMesh(tris, settings, bed, (fraction, message) =>
+      post({ type: "progress", fraction, message }),
+    );
     post({ type: "done", result });
   } catch (err) {
-    post({ type: "error", message: err instanceof Error ? err.message : String(err) });
+    post({
+      type: "error",
+      message: err instanceof Error ? err.message : String(err),
+    });
   }
 };

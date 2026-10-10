@@ -1,16 +1,19 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
-import { resolve } from 'path'
+import { resolve } from "path";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
     rollupOptions: {
-      input: { main: resolve(__dirname, 'index.html'), splash: resolve(__dirname, 'splash.html') },
+      input: {
+        main: resolve(__dirname, "index.html"),
+        splash: resolve(__dirname, "splash.html"),
+      },
     },
   },
   clearScreen: false,
   server: { port: 1420, strictPort: true },
-})
+});
