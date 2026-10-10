@@ -20,13 +20,13 @@
 
 ## Manual 
 Simply go to printers, click **+ New Preset**, configure the settings, optionally change the connection (else if its using COM Ports change the serial port) and connect it by clicking **Create preset**
-<img src=https://quantumleapstudios.org/momonga/media/gifs/connectprinter.gif?>
+<img src=https://quantumleapstudios.org/momonga/media/gifs/optimized_connectprinter.gif>
 
 ## Automatic
 
 Simply click the **Connect** button at the top right, click OctoPrint (or whatever you'll need), and fill out what it asks you to.
 
-<img src=https://quantumleapstudios.org/momonga/media/gifs/connectwirelessprinter.gif?>
+<img src=https://quantumleapstudios.org/momonga/media/gifs/optimized_connectwirelessprinter.gif>
 
 --- 
 
@@ -34,12 +34,12 @@ Simply click the **Connect** button at the top right, click OctoPrint (or whatev
 
 ## Slicing 
 All you have to do is import your model, click slice, then open it in the dedicated GCode Editor
-<img src=https://quantumleapstudios.org/momonga/media/gifs/slice.gif>
+<img src=https://quantumleapstudios.org/momonga/media/gifs/optimized_slice.gif>
 
 ## GCode Editing
 Once you slice your model and open the editor, simply make the changes you want and then Upload (optional but you can also also save it)
-<img src=https://quantumleapstudios.org/momonga/media/gifs/edit.gif>
+<img src=https://quantumleapstudios.org/momonga/media/gifs/optimized_edit.gif>
 
 # Print
 Simply find the exported gcode and Print > Confirm Print
-<img src=https://quantumleapstudios.org/momonga/media/gifs/printgc.gif>
+<img src=https://quantumleapstudios.org/momonga/media/gifs/optimized_print.gif>
