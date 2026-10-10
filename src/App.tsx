@@ -231,7 +231,6 @@ function RecentJobs({ jobs, onNavigate }: { jobs: RecentJob[]; onNavigate: (page
 }
 
 function QuickSlice({ onNavigate }: { onNavigate: (page: string) => void }) {
-  const [profile, setProfile] = useState("0.20 mm");
   return (
     <section className="panel quick-slice">
       <div className="section-title">
@@ -255,10 +254,6 @@ export function PageHeader({ title, description, action }: { title: string; desc
       {action}
     </div>
   );
-}
-
-function Field({ label, value, type = "text", placeholder }: { label: string; value?: string; type?: string; placeholder?: string }) {
-  return <label className="field"><span>{label}</span><input type={type} defaultValue={value} placeholder={placeholder} /></label>;
 }
 
 function PrintersPage({ printers, onNavigate, onSelect }: { printers: PrinterPreset[]; onNavigate: (page: string) => void; onSelect: (id: string) => void }) {

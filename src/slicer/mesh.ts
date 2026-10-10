@@ -71,7 +71,7 @@ export function bounds(t: Tris) {
   return b;
 }
 
-export function normalise(t: Tris): Tris {
+function normalise(t: Tris): Tris {
   const b = bounds(t);
   const cx = (b.min[0] + b.max[0]) / 2, cy = (b.min[1] + b.max[1]) / 2, z = b.min[2];
   const out = new Float32Array(t.length);

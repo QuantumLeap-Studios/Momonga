@@ -5,11 +5,9 @@ const KEY = "momonga.theme";
 const PREFS: ThemePref[] = ["dark", "system", "light"];
 
 export function loadTheme(): ThemePref {
-  try {
-    const v = localStorage.getItem(KEY) as ThemePref | null;
-    if (v && PREFS.includes(v)) return v;
-  } catch {
-  }
+  
+  const v = localStorage.getItem(KEY) as ThemePref | null;
+  if (v && PREFS.includes(v)) return v;
   return "system";
 }
 
@@ -20,15 +18,12 @@ function resolve(pref: ThemePref): "dark" | "light" {
   return pref;
 }
 
-export function applyTheme(pref: ThemePref) {
+function applyTheme(pref: ThemePref) {
   document.documentElement.dataset.theme = resolve(pref);
 }
 
 export function saveTheme(pref: ThemePref) {
-  try {
-    localStorage.setItem(KEY, pref);
-  } catch {
-  }
+  localStorage.setItem(KEY, pref);
   applyTheme(pref);
 }
 

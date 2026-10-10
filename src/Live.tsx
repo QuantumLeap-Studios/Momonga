@@ -184,7 +184,7 @@ function Metric({ label, value, sub }: { label: string; value: string; sub?: str
   );
 }
 
-export function TemperatureChart({ samples }: { samples: Sample[] }) {
+function TemperatureChart({ samples }: { samples: Sample[] }) {
   const W = 520, H = 116;
   const { hot, bed, fill, max } = useMemo(() => {
     const vals = samples.flatMap((s) => [s.hot ?? 0, s.hotTarget, s.bed ?? 0, s.bedTarget]);
@@ -225,8 +225,6 @@ export function ActivePrint({ printer, entry, samples }: { printer: PrinterPrese
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [confirmStop, setConfirmStop] = useState(false);
-  const [view, setView] = useState<"toolpath" | "camera">("camera");
-
   const fraction =
     status?.filePos != null && status.fileSize ? status.filePos / status.fileSize : (status?.progress ?? 0) / 100;
   const layer = gcode ? Math.max(0, layerAtFraction(gcode, fraction)) : 0;
