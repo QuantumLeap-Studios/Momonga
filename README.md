@@ -13,3 +13,33 @@
 ---
 
 **Momonga** is a 3D Printing all-in-one platform that a built-in dedicated slicer & GCode Editor, OctoPrint support, fillament tracker, and more!
+
+---
+
+# Adding a Printer
+
+## Manual 
+Simply go to printers, click **+ New Preset**, configure the settings, optionally change the connection (else if its using COM Ports change the serial port) and connect it by clicking **Create preset**
+![PrinterGif](https://quantumleapstudios.org/momonga/connectprinter.gif)
+
+## Automatic
+
+Simply click the **Connect** button at the top right, click OctoPrint (or whatever you'll need), and fill out what it asks you to.
+
+![AutoGif](https://quantumleapstudios.org/momonga/connectwirelessprinter.gif)
+
+--- 
+
+# 3-Step Printing
+
+## Slicing 
+All you have to do is import your model, click slice, then open it in the dedicated GCode Editor
+![SlicingGif](https://quantumleapstudios.org/momonga/slice.gif)
+
+## GCode Editing
+Once you slice your model and open the editor, simply make the changes you want and then Upload (optional but you can also also save it)
+![EditingGif](https://quantumleapstudios.org/momonga/edit.gif)
+
+# Print
+Simply find the exported gcode and Print > Confirm Print
+![PrintingGif](https://quantumleapstudios.org/momonga/printgc.gif)
