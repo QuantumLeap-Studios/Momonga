@@ -6,6 +6,7 @@ import { baseName, fmtWhen, useRemoteGcode } from "./Live";
 import { ToolpathViewer } from "./ToolpathViewer";
 import { PathTools } from "./PathTools";
 import { movePath } from "./gcodeEdit";
+import { tempDir, join } from "@tauri-apps/api/path";
 import {
   fetchRemoteGcode,
   listRemoteFiles,
@@ -16,6 +17,7 @@ import {
   type PrinterPreset,
   type RemoteFile,
 } from "./printers";
+import { invoke } from "@tauri-apps/api/core";
 
 export interface EditorDoc {
   name: string;
@@ -253,11 +255,16 @@ export function GcodePage({
     setMsg(w.length ? "" : "No problems found.");
   };
   const upload = () =>
-    run(async () => {
-      if (!printer || printer.connection === "usb") throw new Error("Select an OctoPrint or Moonraker printer first");
-      if (!doc?.path || dirty) throw new Error("Save the file first, then upload it");
-      return uploadGcode(printer.id, doc.path, false);
-    });
+  run(async () => {
+    if (!printer || printer.connection === "usb") throw new Error("Select an OctoPrint or Moonraker printer first");
+    const tmpPath = await join(await tempDir(), doc?.name ?? "untitled.gcode");
+    try {
+      await writeGcodeFile(tmpPath, text);
+      return await uploadGcode(printer.id, tmpPath, false);
+    } finally {
+      await invoke("remove_temp_gcode", { path: tmpPath }).catch(() => {});
+    }
+  });
 
   const edit = (next: string, note: string) => {
     setText(next);
@@ -294,13 +301,13 @@ export function GcodePage({
     <div className="module-page">
       <PageHeader
         title="G-code editor"
-        description="Inspect and edit machine instructions."
+        description="Inspect and edit printer instructions."
         action={
           <>
             <Button onClick={openLocal}>Open</Button>
             <Button onClick={validate}>Validate</Button>
-            <Button onClick={upload}><Icon name="upload" size={15} /> Upload</Button>
-            <Button variant="primary" onClick={saveDoc}>Save</Button>
+            <Button onClick={saveDoc}>Save</Button>
+            <Button variant="primary" onClick={upload}><Icon name="upload" size={15} /> Upload</Button>
           </>
         }
       />

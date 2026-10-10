@@ -220,6 +220,15 @@ mod tests {
         assert!(check_gcode("G28\nM104 S999", &p).is_err());
     }
 }
+#[tauri::command]
+fn remove_temp_gcode(path: String) -> Result<(), String> {
+    let p = std::path::PathBuf::from(&path);
+
+    if !p.starts_with(std::env::temp_dir()) {
+        return Err("Refusing to delete a file outside the temp directory".into());
+    }
+    std::fs::remove_file(p).map_err(|e| e.to_string())
+}
 
 #[tauri::command]
 pub async fn camera_stream_url(store: State<'_, PresetStore>, id: String) -> Result<String, String> {
